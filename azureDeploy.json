@@ -17,71 +17,71 @@
         "description": ""
       }
     },
-    "GwVNETResourceGroupName": {
+    "optional-GatewayVNETRgName": {
       "type": "string",
       "defaultvalue": "",
       "metadata": {
         "description": "Keep this field empty if the existing vNET is deployed in the same Resource Group as the BWAN GW VM"
       }
     },
-    "GWVNETName": {
+    "GatewayVNETName": {
       "type": "string",
       "defaultvalue": "netskope-bwan-gw-vnet",
       "metadata": {
         "description": "Enter a name for the virtual network."
       }
     },
-    "bwan_gw_vnet_prefix": {
+    "GatewayVNETPrefix": {
       "type": "string",
       "defaultValue": "10.0.0.0/16",
       "metadata": {
         "description": "Enter a prefix for the virtual network."
       }
     },
-    "bwan_gw_subnet_public": {
+    "GatewayPublicSubnetName": {
       "type": "string",
-      "defaultValue": "bwan_gw_subnet_public",
+      "defaultValue": "bwan-gw-subnet-public",
       "metadata": {
         "description": "Enter a subnet name for the gateway public interface (GE1)"
       }
     },
-    "bwan_gw_subnet_private": {
+    "GatewayPrivateSubnetName": {
       "type": "string",
-      "defaultValue": "bwan_gw_subnet_private",
+      "defaultValue": "bwan-gw-subnet-private",
       "metadata": {
         "description": "Enter a subnet name for the gateway private interface (GE2)"
       }
     },
-    "bwan_gw_subnet_prefix_public": {
+    "GatewayPublicSubnetPrefix": {
       "type": "string",
       "defaultValue": "10.0.1.0/24",
       "metadata": {
         "description": "Enter a subnet prefix for the gateway public interface (GE1)"
       }
     },
-    "bwan_gw_subnet_prefix_private": {
+    "GatewayPrivateSubnetPrefix": {
       "type": "string",
       "defaultValue": "10.0.2.0/24",
       "metadata": {
         "description": "Enter a subnet prefix for the gateway private interface (GE2)"
       }
     },
-    "bwan_gw_vm_name": {
+    "GatewayVMName": {
       "type": "string",
       "defaultValue": "netskope_bwan_gw",
       "metadata": {
         "description": "Enter a name for the borderless sd-wan gateway"
       }
     },
-    "bwan_gw_eth0_IP": {
+    "GatewayEthernet0IP": {
       "type": "string",
       "defaultValue": "10.0.1.4"
     },
-    "bwan_gw_eth1_IP": {
+    "GatewayEthernet1IP": {
       "type": "string",
       "defaultValue": "10.0.2.4"
     },
-    "bwan_gw_vm_size": {
+    "GatewayVMSize": {
       "type": "string",
       "defaultValue": "Standard_B2ms",
       "allowedValues": [
@@ -95,7 +95,7 @@
         "description": "Select a VM size for the Gateway."
       }
     },
-    "bwan_gw_os_disk_type": {
+    "GatewayOSDiskType": {
       "type": "string",
       "defaultValue": "Standard_LRS",
       "allowedValues": [
@@ -106,28 +106,28 @@
         "description": "Select the storage type for the gateway VM"
       }
     },
-    "bwan_gw_nsg_name": {
+    "GatewayNSGName": {
       "type": "string",
       "defaultValue": "netskope-bwan-nsg",
       "metadata": {
         "description": "Enter a name for gateway NSG.  The name entered will have '-public' appended for the public NSG and '-private' for the private NSG."
       }
     },
-    "bwan_gw_nsg_prefix": {
+    "GatewayNSGSourcePrefix": {
       "type": "string",
       "defaultValue": "0.0.0.0/0",
       "metadata": {
         "description": "Enter a valid address prefix. This address will be able to access the gateway via SSH"
       }
     },
-    "bwan_gw_username": {
+    "GatewayAdminUsername": {
       "type": "string",
       "defaultValue": "bwanadmin",
       "metadata": {
         "description": "Enter the gateway's administrator username"
       }
     },
-    "bwan_gw_password": {
+    "GatewayAdminPassword": {
       "type": "securestring",
       "minLength": 12,
       "maxLength": 24,
@@ -135,7 +135,7 @@
         "description": "Enter the gateway's administrator password. Password must be 12-24 characters and must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character that is not slash or hyphen."
       }
     },
-    "optional_string_to_append": {
+    "optional-StringToAppend": {
       "type": "string",
       "defaultValue": "",
       "metadata": {
@@ -146,41 +146,41 @@
   "variables": {
     "global_var_schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "global_var_resource_group": "[resourceGroup().name]",
-    "global_var_appendedString": "[if(equals(parameters('optional_string_to_append'), ''), '', parameters('optional_string_to_append'))]",
+    "global_var_appendedString": "[if(equals(parameters('optional-StringToAppend'), ''), '', parameters('optional-StringToAppend'))]",
     "global_var_idleTimeoutInMinutes": 4,
     "global_var_allocationMethod": "Static",
     "global_var_networkVersion": "IPv4",
     "global_var_apiVersion": "2023-04-01",
     "global_var_tier": "Regional",
     "global_var_sku": "Standard",
-    "global_gw_public_nsg_name": "[take(replace(concat(parameters('bwan_gw_nsg_name'), '-public', variables('global_var_appendedString')), ' ', ''), 80)]",
-    "global_gw_private_nsg_name": "[take(replace(concat(parameters('bwan_gw_nsg_name'), '-private', variables('global_var_appendedString')), ' ', ''), 80)]",
-    "global_vnet_name": "[if(equals(parameters('VNETOption'), 'Use an existing vNET'), parameters('GWVNETName'), take(replace(concat(parameters('GWVNETName'), variables('global_var_appendedString')), ' ', ''), 64))]",
-    "global_vnet_resource_group": "[if(equals(parameters('GwVNETResourceGroupName'), ''), variables('global_var_resource_group'), parameters('GwVNETResourceGroupName'))]",
+    "global_gw_public_nsg_name": "[take(replace(concat(parameters('GatewayNSGName'), '-public', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "global_gw_private_nsg_name": "[take(replace(concat(parameters('GatewayNSGName'), '-private', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "global_vnet_name": "[if(equals(parameters('VNETOption'), 'Use an existing vNET'), parameters('GatewayVNETName'), take(replace(concat(parameters('GatewayVNETName'), variables('global_var_appendedString')), ' ', ''), 64))]",
+    "global_vnet_resource_group": "[if(equals(parameters('optional-GatewayVNETRgName'), ''), variables('global_var_resource_group'), parameters('optional-GatewayVNETRgName'))]",
     "global_vnet_option": "[parameters('VNETOption')]",
-    "global_vnet_subnet0_name": "[take(replace(parameters('bwan_gw_subnet_public'), ' ', ''), 80)]",
-    "global_vnet_subnet1_name": "[take(replace(parameters('bwan_gw_subnet_prefix_private'), ' ', ''), 80)]",
+    "global_vnet_subnet0_name": "[take(replace(parameters('GatewayPublicSubnetName'), ' ', ''), 80)]",
+    "global_vnet_subnet1_name": "[take(replace(parameters('GatewayPrivateSubnetPrefix'), ' ', ''), 80)]",
     "global_gw_plan_name": "infiot_virtual_edge",
     "global_gw_plan_product": "infiot-vedge",
     "global_gw_plan_publisher": "infiotinc1614034091460",
     "global_gw_version": "latest",
-    "global_gw_vmSize": "[parameters('bwan_gw_vm_size')]",
-    "global_gw_storageAccountType": "[parameters('bwan_gw_os_disk_type')]",
-    "global_gw_adminUsername": "[parameters('bwan_gw_username')]",
-    "global_gw_adminPassword": "[parameters('bwan_gw_password')]",
+    "global_gw_vmSize": "[parameters('GatewayVMSize')]",
+    "global_gw_storageAccountType": "[parameters('GatewayOSDiskType')]",
+    "global_gw_adminUsername": "[parameters('GatewayAdminUsername')]",
+    "global_gw_adminPassword": "[parameters('GatewayAdminPassword')]",
 
-    "nsg_public_inbound_rule_source_address": "[parameters('bwan_gw_nsg_prefix')]",
+    "nsg_public_inbound_rule_source_address": "[parameters('GatewayNSGSourcePrefix')]",
 
-    "vnet_cidr": "[parameters('bwan_gw_vnet_prefix')]",
-    "vnet_subnet0_cidr": "[parameters('bwan_gw_subnet_prefix_public')]",
-    "vnet_subnet1_cidr": "[parameters('bwan_gw_subnet_prefix_private')]",
+    "vnet_cidr": "[parameters('GatewayVNETPrefix')]",
+    "vnet_subnet0_cidr": "[parameters('GatewayPublicSubnetPrefix')]",
+    "vnet_subnet1_cidr": "[parameters('GatewayPrivateSubnetPrefix')]",
 
-    "gw_computerName": "[take(replace(replace(concat(parameters('bwan_gw_vm_name'), variables('global_var_appendedString')), ' ', ''), '_', ''), 64)]",
-    "gw_interface0_name": "[take(replace(concat(parameters('bwan_gw_vm_name'), '-nic0', variables('global_var_appendedString')), ' ', ''), 80)]",
-    "gw_interface1_name": "[take(replace(concat(parameters('bwan_gw_vm_name'), '-nic1', variables('global_var_appendedString')), ' ', ''), 80)]",
-    "gw_interface0_ip": "[parameters('bwan_gw_eth0_IP')]",
-    "gw_interface1_ip": "[parameters('bwan_gw_eth1_IP')]",
-    "gw_interface0_pip_name": "[take(replace(concat(parameters('bwan_gw_vm_name'), '-nic0-pip', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "gw_computerName": "[take(replace(replace(concat(parameters('GatewayVMName'), variables('global_var_appendedString')), ' ', ''), '_', ''), 64)]",
+    "gw_interface0_name": "[take(replace(concat(parameters('GatewayVMName'), '-nic0', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "gw_interface1_name": "[take(replace(concat(parameters('GatewayVMName'), '-nic1', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "gw_interface0_ip": "[parameters('GatewayEthernet0IP')]",
+    "gw_interface1_ip": "[parameters('GatewayEthernet1IP')]",
+    "gw_interface0_pip_name": "[take(replace(concat(parameters('GatewayVMName'), '-nic0-pip', variables('global_var_appendedString')), ' ', ''), 80)]",
     "gw_interface0_pip_id": { "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gw_interface0_pip_name'))]" }
 
 
