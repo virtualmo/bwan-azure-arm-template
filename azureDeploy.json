@@ -453,16 +453,11 @@
                   "adminPassword": "[variables('global_gw_adminPassword')]",
                   "linuxConfiguration": {
                     "disablePasswordAuthentication": false,
-                    "provisionVMAgent": true,
                     "patchSettings": {
                       "patchMode": "ImageDefault",
                       "assessmentMode": "ImageDefault"
-                    },
-                    "enableVMAgentPlatformUpdates": false
-                  },
-                  "secrets": [],
-                  "allowExtensionOperations": true,
-                  "requireGuestProvisionSignal": true
+                    }
+                  }
                 },
                 "networkProfile": {
                   "networkInterfaces": [
