@@ -8,7 +8,7 @@
   "parameters": {
     "VNETOption": {
       "type": "string",
-      "value": "Create a new vNET",
+      "defaultvalue": "Create a new vNET",
       "allowedValues": [
         "Create a new vNET",
         "Use an existing vNET"
@@ -26,7 +26,7 @@
     },
     "bwan_gw_vnet_name": {
       "type": "string",
-      "value": "netskope-bwan-gw-vnet",
+      "defaultvalue": "netskope-bwan-gw-vnet",
       "metadata": {
         "description": "Enter a name for the virtual network."
       }
@@ -66,13 +66,20 @@
         "description": "Enter a subnet prefix for the gateway private interface (GE2)"
       }
     },
+    "bwan_gw_vm_name": {
+      "type": "string",
+      "defaultValue": "netskope_bwan_gw",
+      "metadata": {
+        "description": "Enter a name for the borderless sd-wan gateway"
+      }
+    },
     "bwan_gw_eth0_IP": {
       "type": "string",
-      "value": "10.0.1.4"
+      "defaultValue": "10.0.1.4"
     },
     "bwan_gw_eth1_IP": {
       "type": "string",
-      "value": "10.0.2.4"
+      "defaultValue": "10.0.2.4"
     },
     "bwan_gw_vm_size": {
       "type": "string",
@@ -115,7 +122,7 @@
     },
     "bwan_gw_username": {
       "type": "string",
-      "value": "bwanadmin",
+      "defaultValue": "bwanadmin",
       "metadata": {
         "description": "Enter the gateway's administrator username"
       }
@@ -133,13 +140,6 @@
       "defaultValue": "",
       "metadata": {
         "description": "Optional string to append to avoid duplication"
-      }
-    },
-    "bwan_gw_vm_name": {
-      "type": "string",
-      "defaultValue": "netskope_bwan_gw",
-      "metadata": {
-        "description": "Enter a name for the borderless sd-wan gateway"
       }
     }
   },
