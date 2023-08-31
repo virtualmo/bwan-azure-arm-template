@@ -17,7 +17,7 @@
         "description": ""
       }
     },
-    "optional-GatewayVNETRgName": {
+    "GatewayVNETResourceGroupName": {
       "type": "string",
       "defaultvalue": "",
       "metadata": {
@@ -73,11 +73,11 @@
         "description": "Enter a name for the borderless sd-wan gateway"
       }
     },
-    "GatewayEthernet0IP": {
+    "GatewayEthernet0IpAddress": {
       "type": "string",
       "defaultValue": "10.0.1.4"
     },
-    "GatewayEthernet1IP": {
+    "GatewayEthernet1IpAddress": {
       "type": "string",
       "defaultValue": "10.0.2.4"
     },
@@ -156,7 +156,7 @@
     "global_gw_public_nsg_name": "[take(replace(concat(parameters('GatewayNSGName'), '-public', variables('global_var_appendedString')), ' ', ''), 80)]",
     "global_gw_private_nsg_name": "[take(replace(concat(parameters('GatewayNSGName'), '-private', variables('global_var_appendedString')), ' ', ''), 80)]",
     "global_vnet_name": "[if(equals(parameters('VNETOption'), 'Use an existing vNET'), parameters('GatewayVNETName'), take(replace(concat(parameters('GatewayVNETName'), variables('global_var_appendedString')), ' ', ''), 64))]",
-    "global_vnet_resource_group": "[if(equals(parameters('optional-GatewayVNETRgName'), ''), variables('global_var_resource_group'), parameters('optional-GatewayVNETRgName'))]",
+    "global_vnet_resource_group": "[if(equals(parameters('GatewayVNETResourceGroupName'), ''), variables('global_var_resource_group'), parameters('GatewayVNETResourceGroupName'))]",
     "global_vnet_option": "[parameters('VNETOption')]",
     "global_vnet_subnet0_name": "[take(replace(parameters('GatewayPublicSubnetName'), ' ', ''), 80)]",
     "global_vnet_subnet1_name": "[take(replace(parameters('GatewayPrivateSubnetPrefix'), ' ', ''), 80)]",
@@ -178,8 +178,8 @@
     "gw_computerName": "[take(replace(replace(concat(parameters('GatewayVMName'), variables('global_var_appendedString')), ' ', ''), '_', ''), 64)]",
     "gw_interface0_name": "[take(replace(concat(parameters('GatewayVMName'), '-nic0', variables('global_var_appendedString')), ' ', ''), 80)]",
     "gw_interface1_name": "[take(replace(concat(parameters('GatewayVMName'), '-nic1', variables('global_var_appendedString')), ' ', ''), 80)]",
-    "gw_interface0_ip": "[parameters('GatewayEthernet0IP')]",
-    "gw_interface1_ip": "[parameters('GatewayEthernet1IP')]",
+    "gw_interface0_ip": "[parameters('GatewayEthernet0IpAddress')]",
+    "gw_interface1_ip": "[parameters('GatewayEthernet1IpAddress')]",
     "gw_interface0_pip_name": "[take(replace(concat(parameters('GatewayVMName'), '-nic0-pip', variables('global_var_appendedString')), ' ', ''), 80)]",
     "gw_interface0_pip_id": { "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gw_interface0_pip_name'))]" }
 
