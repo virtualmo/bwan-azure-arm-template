@@ -68,7 +68,7 @@
     },
     "GatewayVMName": {
       "type": "string",
-      "defaultValue": "netskope_bwan_gw",
+      "defaultValue": "netskope-bwan-gw",
       "metadata": {
         "description": "Enter a name for the borderless sd-wan gateway"
       }
