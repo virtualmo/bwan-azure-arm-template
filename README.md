@@ -13,7 +13,7 @@ The template assumes the following a Requirement:
 
 ## 1.2. Deploy Azure Environment
 
-Deploy single Netskope Borderless SD-WAN Gateway with two interfaces (1xPublic and 1xPrivate). The template doesn’t include the applications vNet deployment nor the branch offices.
+Click on the Deploy button to deploy single Netskope Borderless SD-WAN Gateway with two interfaces (1xPublic and 1xPrivate). The template doesn’t include the applications vNet deployment nor the branch offices.
 
 <p align="center">
 <img src="https://github.com/virtualmo/bwan-azure-arm-template/blob/main/Images/Topology.png">
