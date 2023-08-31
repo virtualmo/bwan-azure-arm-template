@@ -1,0 +1,487 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "comments": "This template is released under an as-is.",
+    "author": "Mohanad Elamin - melamin@netskope.com)"
+  },
+  "parameters": {
+    "VNETOption": {
+      "type": "String",
+      "value": "Create a new vNET",
+      "allowedValues": [
+        "Create a new vNET",
+        "Use an existing vNET"
+      ],
+      "metadata": {
+        "description": ""
+      }
+    },
+    "bwan_gw_vnet_rg_name": {
+      "type": "string",
+      "defaultvalue": "",
+      "metadata": {
+        "description": "Keep this field empty if the existing vNET is deployed in the same Resource Group as the BWAN GW VM"
+      }
+    },
+    "bwan_gw_vnet_name": {
+      "type": "string",
+      "value": "netskope-bwan-gw-vnet",
+      "metadata": {
+        "description": "Enter a name for the virtual network."
+      }
+    },
+    "bwan_gw_vnet_prefix": {
+      "type": "string",
+      "defaultValue": "10.0.0.0/16",
+      "metadata": {
+        "description": "Enter a prefix for the virtual network."
+      }
+    },
+    "bwan_gw_subnet_public": {
+      "type": "string",
+      "defaultValue": "bwan_gw_subnet_public",
+      "metadata": {
+        "description": "Enter a subnet name for the gateway public interface (GE1)"
+      }
+    },
+    "bwan_gw_subnet_private": {
+      "type": "string",
+      "defaultValue": "bwan_gw_subnet_private",
+      "metadata": {
+        "description": "Enter a subnet name for the gateway private interface (GE2)"
+      }
+    },
+    "bwan_gw_subnet_prefix_public": {
+      "type": "string",
+      "defaultValue": "10.0.1.0/24",
+      "metadata": {
+        "description": "Enter a subnet prefix for the gateway public interface (GE1)"
+      }
+    },
+    "bwan_gw_subnet_prefix_private": {
+      "type": "string",
+      "defaultValue": "10.0.2.0/24",
+      "metadata": {
+        "description": "Enter a subnet prefix for the gateway private interface (GE2)"
+      }
+    },
+    "bwan_gw_eth0_IP": {
+      "type": "String",
+      "value": "10.0.1.4"
+    },
+    "bwan_gw_eth1_IP": {
+      "type": "String",
+      "value": "10.0.2.4"
+    },
+    "bwan_gw_vm_size": {
+      "type": "string",
+      "defaultValue": "Standard_B2ms",
+      "allowedValues": [
+        "Standard_B2ms",
+        "Standard_B4ms",
+        "Standard_D2_v4",
+        "Standard_D4_v4",
+        "Standard_D8_v4"
+      ],
+      "metadata": {
+        "description": "Select a VM size for the Gateway."
+      }
+    },
+    "bwan_gw_os_disk_type": {
+      "defaultValue": "Standard_LRS",
+      "allowedValues": [
+        "Standard_LRS",
+        "Premium_LRS"
+      ],
+      "metadata": {
+        "description": "Select the storage type for the gateway VM"
+      }
+    },
+    "bwan_gw_nsg_name": {
+      "type": "string",
+      "defaultValue": "netskope-bwan-nsg",
+      "metadata": {
+        "description": "Enter a name for gateway NSG.  The name entered will have '-public' appended for the public NSG and '-private' for the private NSG."
+      }
+    },
+    "bwan_gw_nsg_prefix": {
+      "type": "string",
+      "defaultValue": "0.0.0.0/0",
+      "metadata": {
+        "description": "Enter a valid address prefix. This address will be able to access the gateway via SSH"
+      }
+    },
+    "bwan_gw_username": {
+      "type": "string",
+      "value": "bwanadmin",
+      "metadata": {
+        "description": "Enter the gateway's administrator username"
+      }
+    },
+    "bwan_gw_password": {
+      "type": "securestring",
+      "minLength": 12,
+      "maxLength": 24,
+      "metadata": {
+        "description": "Enter the gateway's administrator password. Password must be 12-24 characters and must have 3 of the following: 1 lower case character, 1 upper case character, 1 number, and 1 special character that is not slash or hyphen."
+      }
+    },
+    "optional_string_to_append": {
+      "type": "string",
+      "defaultValue": "",
+      "metadata": {
+        "description": "Optional string to append to avoid duplication"
+      }
+    },
+    "bwan_gw_vm_name": {
+      "type": "string",
+      "defaultValue": "netskope_bwan_gw",
+      "metadata": {
+        "description": "Enter a name for the borderless sd-wan gateway"
+      }
+    },
+  },
+  "variables": {
+    "global_var_schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+    "global_var_resource_group": "[resourceGroup().name]",
+    "global_var_appendedString": "[if(equals(parameters('optional_string_to_append'), ''), '', parameters('optional_string_to_append'))]",
+    "global_var_idleTimeoutInMinutes": 4,
+    "global_var_allocationMethod": "Static",
+    "global_var_networkVersion": "IPv4",
+    "global_var_apiVersion": "2023-04-01",
+    "global_var_tier": "Regional",
+    "global_var_sku": "Standard",
+    "global_gw_public_nsg_name": "[take(replace(concat(parameters('bwan_gw_nsg_name'), '-public', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "global_gw_private_nsg_name": "[take(replace(concat(parameters('bwan_gw_nsg_name'), '-private', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "global_vnet_name": "[if(equals(parameters('VNETOption'), 'Use an existing vNET'), parameters('bwan_gw_vnet_name'), take(replace(concat(parameters('bwan_gw_vnet_name'), variables('global_var_appendedString')), ' ', ''), 64))]",
+    "global_vnet_resource_group": "[if(equals(parameters('bwan_gw_vnet_rg_name'), ''), variables('global_var_resource_group'), parameters('bwan_gw_vnet_rg_name'))]",
+    "global_vnet_option": "[parameters('VNETOption')]",
+    "global_vnet_subnet0_name": "[take(replace(parameters('bwan_gw_subnet_public'), ' ', ''), 80)]",
+    "global_vnet_subnet1_name": "[take(replace(parameters('bwan_gw_subnet_prefix_private'), ' ', ''), 80)]",
+    "global_gw_plan_name": "infiot_virtual_edge",
+    "global_gw_plan_product": "infiot-vedge",
+    "global_gw_plan_publisher": "infiotinc1614034091460",
+    "global_gw_version": "latest",
+    "global_gw_vmSize": "[parameters('bwan_gw_vm_size')]",
+    "global_gw_storageAccountType": "[parameters('bwan_gw_os_disk_type')]",
+    "global_gw_adminUsername": "[parameters('bwan_gw_username')]",
+    "global_gw_adminPassword": "[parameters('bwan_gw_password')]",
+
+    "nsg_public_inbound_rule_source_address": "[parameters('bwan_gw_nsg_prefix')]",
+
+    "vnet_cidr": "[parameters('bwan_gw_vnet_prefix')]",
+    "vnet_subnet0_cidr": "[parameters('bwan_gw_subnet_prefix_public')]",
+    "vnet_subnet1_cidr": "[parameters('bwan_gw_subnet_prefix_private')]",
+
+    "gw_computerName": "[take(replace(replace(concat(parameters('bwan_gw_vm_name'), variables('global_var_appendedString')), ' ', ''), '_', ''), 64)]",
+    "gw_interface0_name": "[take(replace(concat(parameters('bwan_gw_vm_name'), '-nic0', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "gw_interface1_name": "[take(replace(concat(parameters('bwan_gw_vm_name'), '-nic1', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "gw_interface0_ip": "[parameters('bwan_gw_eth0_IP')]",
+    "gw_interface1_ip": "[parameters('bwan_gw_eth1_IP')]",
+    "gw_interface0_pip_name": "[take(replace(concat(parameters('bwan_gw_vm_name'), '-nic0-pip', variables('global_var_appendedString')), ' ', ''), 80)]",
+    "gw_interface0_pip_id": { "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gw_interface0_pip_name'))]" },
+
+
+  },
+  "resources": [
+    {
+      "comments": "# Create the public and private network security groups",
+      "type": "Microsoft.Resources/deployments",
+      "name": "CREATE_NSGS",
+      "apiVersion": "[variables('global_var_apiVersion')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "[variables('global_var_schema')]",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "[variables('global_var_apiVersion')]",
+              "name": "[variables('global_gw_public_nsg_name')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "securityRules": [
+                  {
+                    "name": "allow_ssh",
+                    "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                    "properties": {
+                      "protocol": "TCP",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "22",
+                      "sourceAddressPrefix": "[variables('nsg_public_inbound_rule_source_address')]",
+                      "destinationAddressPrefix": "*",
+                      "access": "Allow",
+                      "priority": 1010,
+                      "direction": "Inbound",
+                      "sourcePortRanges": [],
+                      "destinationPortRanges": [],
+                      "sourceAddressPrefixes": [],
+                      "destinationAddressPrefixes": []
+                    }
+                  },
+                  {
+                    "name": "allow_ipsec",
+                    "type": "Microsoft.Network/networkSecurityGroups/securityRules",
+                    "properties": {
+                      "protocol": "UDP",
+                      "sourcePortRange": "*",
+                      "destinationPortRange": "4500",
+                      "sourceAddressPrefix": "*",
+                      "destinationAddressPrefix": "*",
+                      "access": "Allow",
+                      "priority": 1020,
+                      "direction": "Inbound",
+                      "sourcePortRanges": [],
+                      "destinationPortRanges": [],
+                      "sourceAddressPrefixes": [],
+                      "destinationAddressPrefixes": []
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkSecurityGroups",
+              "apiVersion": "[variables('global_var_apiVersion')]",
+              "name": "[variables('global_gw_private_nsg_name')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "securityRules": []
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "comments": "# Create vNET with public and private subnet",
+      "type": "Microsoft.Resources/deployments",
+      "name": "CREATE_VNET",
+      "apiVersion": "[variables('global_var_apiVersion')]",
+      "resourceGroup": "[variables('global_vnet_resource_group')]",
+      "condition": "[equals(variables('global_vnet_option'), 'Create a new vNET')]",
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "[variables('global_var_schema')]",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Network/virtualNetworks",
+              "name": "[variables('global_vnet_name')]",
+              "apiVersion": "[variables('global_var_apiVersion')]",
+              "location": "[resourceGroup().location]",
+              "properties": {
+                "addressSpace": {
+                  "addressPrefixes": [
+                    "[variables('vnet_cidr')]"
+                  ]
+                },
+                "subnets": [
+                  {
+                    "name": "[variables('global_vnet_subnet0_name')]",
+                    "properties": {
+                      "addressPrefix": "[variables('vnet_subnet0_cidr')]"
+                    }
+                  },
+                  {
+                    "name": "[variables('global_vnet_subnet1_name')]",
+                    "properties": {
+                      "addressPrefix": "[variables('vnet_subnet1_cidr')]"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "comments": "# Create a BWAN gateway VM with two interfaces",
+      "type": "Microsoft.Resources/deployments",
+      "name": "CREATE_GW",
+      "apiVersion": "[variables('global_var_apiVersion')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "dependsOn": [
+        "CREATE_VNET",
+        "CREATE_NSGS"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "[variables('global_var_schema')]",
+          "contentVersion": "1.0.0.0",
+          "resources": [
+            {
+              "type": "Microsoft.Network/publicIPAddresses",
+              "apiVersion": "[variables('global_var_apiVersion')]",
+              "name": "[variables('gw_interface0_pip_name')]",
+              "location": "[resourceGroup().location]",
+              "sku": {
+                "name": "[variables('global_var_sku')]",
+                "tier": "[variables('global_var_tier')]"
+              },
+              "properties": {
+                "publicIPAddressVersion": "[variables('global_var_networkVersion')]",
+                "publicIPAllocationMethod": "[variables('global_var_allocationMethod')]",
+                "idleTimeoutInMinutes": "[variables('global_var_idleTimeoutInMinutes')]",
+                "ipTags": []
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "[variables('global_var_apiVersion')]",
+              "name": "[variables('gw_interface0_name')]",
+              "location": "[resourceGroup().location]",
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/publicIPAddresses/', variables('gw_interface0_pip_name'))]"
+              ],
+              "kind": "Regular",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                    "properties": {
+                      "privateIpAddress": "[variables('gw_interface0_ip')]",
+                      "privateIPAllocationMethod": "[variables('global_var_allocationMethod')]",
+                      "publicIpAddress": "[variables('gw_interface0_pip_id')]",
+                      "subnet": {
+                        "id": "[concat(resourceId(variables('global_vnet_resource_group'), 'Microsoft.Network/virtualNetworks', variables('global_vnet_name')), '/subnets/', variables('global_vnet_subnet0_name'))]"
+                      },
+                      "primary": true,
+                      "privateIPAddressVersion": "[variables('global_var_networkVersion')]"
+                    }
+                  }
+                ],
+                "dnsSettings": {
+                  "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('global_gw_public_nsg_name'))]"
+                },
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+              }
+            },
+            {
+              "type": "Microsoft.Network/networkInterfaces",
+              "apiVersion": "[variables('global_var_apiVersion')]",
+              "name": "[variables('gw_interface1_name')]",
+              "location": "[resourceGroup().location]",
+              "kind": "Regular",
+              "properties": {
+                "ipConfigurations": [
+                  {
+                    "name": "ipconfig1",
+                    "type": "Microsoft.Network/networkInterfaces/ipConfigurations",
+                    "properties": {
+                      "privateIpAddress": "[variables('gw_interface1_ip')]",
+                      "privateIPAllocationMethod": "[variables('global_var_allocationMethod')]",
+                      "subnet": {
+                        "id": "[concat(resourceId(variables('global_vnet_resource_group'), 'Microsoft.Network/virtualNetworks', variables('global_vnet_name')), '/subnets/', variables('global_vnet_subnet0_name'))]"
+                      },
+                      "primary": true,
+                      "privateIPAddressVersion": "[variables('global_var_networkVersion')]"
+                    }
+                  }
+                ],
+                "dnsSettings": {
+                  "dnsServers": []
+                },
+                "enableAcceleratedNetworking": false,
+                "enableIPForwarding": false,
+                "disableTcpStateTracking": false,
+                "networkSecurityGroup": {
+                  "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('global_gw_private_nsg_name'))]"
+                },
+                "nicType": "Standard",
+                "auxiliaryMode": "None",
+                "auxiliarySku": "None"
+              }
+            },
+            {
+              "type": "Microsoft.Compute/virtualMachines",
+              "apiVersion": "[variables('global_var_apiVersion')]",
+              "name": "[variables('gw_computerName')]",
+              "location": "eastus",
+              "dependsOn": [
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('gw_interface0_name'))]",
+                "[resourceId('Microsoft.Network/networkInterfaces', variables('gw_interface1_name'))]"
+              ],
+              "plan": {
+                "name": "[variables('global_gw_plan_name')]",
+                "product": "[variables('global_gw_plan_product')]",
+                "publisher": "[variables('global_gw_plan_publisher')]"
+              },
+              "properties": {
+                "hardwareProfile": {
+                  "vmSize": "[variables('global_gw_vmSize')]"
+                },
+                "storageProfile": {
+                  "imageReference": {
+                    "publisher": "[variables('global_gw_plan_publisher')]",
+                    "offer": "[variables('global_gw_plan_product')]",
+                    "sku": "[variables('global_gw_plan_name')]",
+                    "version": "[variables('global_gw_version')]"
+                  },
+                  "osDisk": {
+                    "osType": "Linux",
+                    "createOption": "FromImage",
+                    "caching": "ReadWrite",
+                    "managedDisk": {
+                      "storageAccountType": "[variables('global_gw_storageAccountType')]"
+                    },
+                    "deleteOption": "Delete"
+                  },
+                  "dataDisks": []
+                },
+                "osProfile": {
+                  "computerName": "[variables('gw_computerName')]",
+                  "adminUsername": "[variables('global_gw_adminUsername')]",
+                  "adminPassword": "[variables('global_gw_adminPassword')]",
+                  "linuxConfiguration": {
+                    "disablePasswordAuthentication": false,
+                    "provisionVMAgent": true,
+                    "patchSettings": {
+                      "patchMode": "ImageDefault",
+                      "assessmentMode": "ImageDefault"
+                    },
+                    "enableVMAgentPlatformUpdates": false
+                  },
+                  "secrets": [],
+                  "allowExtensionOperations": true,
+                  "requireGuestProvisionSignal": true
+                },
+                "networkProfile": {
+                  "networkInterfaces": [
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('gw_interface0_name'))]",
+                      "properties": {
+                        "primary": true,
+                      }
+                    },
+                    {
+                      "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('gw_interface1_name'))]",
+                      "properties": {
+                        "primary": false
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}
