@@ -17,14 +17,14 @@
         "description": ""
       }
     },
-    "bwan_gw_vnet_rg_name": {
+    "GwVNETResourceGroupName": {
       "type": "string",
       "defaultvalue": "",
       "metadata": {
         "description": "Keep this field empty if the existing vNET is deployed in the same Resource Group as the BWAN GW VM"
       }
     },
-    "bwan_gw_vnet_name": {
+    "GWVNETName": {
       "type": "string",
       "defaultvalue": "netskope-bwan-gw-vnet",
       "metadata": {
@@ -155,8 +155,8 @@
     "global_var_sku": "Standard",
     "global_gw_public_nsg_name": "[take(replace(concat(parameters('bwan_gw_nsg_name'), '-public', variables('global_var_appendedString')), ' ', ''), 80)]",
     "global_gw_private_nsg_name": "[take(replace(concat(parameters('bwan_gw_nsg_name'), '-private', variables('global_var_appendedString')), ' ', ''), 80)]",
-    "global_vnet_name": "[if(equals(parameters('VNETOption'), 'Use an existing vNET'), parameters('bwan_gw_vnet_name'), take(replace(concat(parameters('bwan_gw_vnet_name'), variables('global_var_appendedString')), ' ', ''), 64))]",
-    "global_vnet_resource_group": "[if(equals(parameters('bwan_gw_vnet_rg_name'), ''), variables('global_var_resource_group'), parameters('bwan_gw_vnet_rg_name'))]",
+    "global_vnet_name": "[if(equals(parameters('VNETOption'), 'Use an existing vNET'), parameters('GWVNETName'), take(replace(concat(parameters('GWVNETName'), variables('global_var_appendedString')), ' ', ''), 64))]",
+    "global_vnet_resource_group": "[if(equals(parameters('GwVNETResourceGroupName'), ''), variables('global_var_resource_group'), parameters('GwVNETResourceGroupName'))]",
     "global_vnet_option": "[parameters('VNETOption')]",
     "global_vnet_subnet0_name": "[take(replace(parameters('bwan_gw_subnet_public'), ' ', ''), 80)]",
     "global_vnet_subnet1_name": "[take(replace(parameters('bwan_gw_subnet_prefix_private'), ' ', ''), 80)]",
