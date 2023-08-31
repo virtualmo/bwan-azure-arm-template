@@ -8,7 +8,7 @@
   "parameters": {
     "VNETOption": {
       "type": "string",
-      "defaultvalue": "Create a new vNET",
+      "defaultValue": "Create a new vNET",
       "allowedValues": [
         "Create a new vNET",
         "Use an existing vNET"
@@ -19,14 +19,14 @@
     },
     "GatewayVNETResourceGroupName": {
       "type": "string",
-      "defaultvalue": "",
+      "defaultValue": "",
       "metadata": {
         "description": "Keep this field empty if the existing vNET is deployed in the same Resource Group as the BWAN GW VM"
       }
     },
     "GatewayVNETName": {
       "type": "string",
-      "defaultvalue": "netskope-bwan-gw-vnet",
+      "defaultValue": "netskope-bwan-gw-vnet",
       "metadata": {
         "description": "Enter a name for the virtual network."
       }
