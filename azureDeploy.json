@@ -159,7 +159,7 @@
     "global_vnet_resource_group": "[if(equals(parameters('GatewayVNETResourceGroupName'), ''), variables('global_var_resource_group'), parameters('GatewayVNETResourceGroupName'))]",
     "global_vnet_option": "[parameters('VNETOption')]",
     "global_vnet_subnet0_name": "[take(replace(parameters('GatewayPublicSubnetName'), ' ', ''), 80)]",
-    "global_vnet_subnet1_name": "[take(replace(parameters('GatewayPrivateSubnetPrefix'), ' ', ''), 80)]",
+    "global_vnet_subnet1_name": "[take(replace(parameters('GatewayPrivateSubnetName'), ' ', ''), 80)]",
     "global_gw_plan_name": "infiot_virtual_edge",
     "global_gw_plan_product": "infiot-vedge",
     "global_gw_plan_publisher": "infiotinc1614034091460",
@@ -388,7 +388,7 @@
                       "privateIpAddress": "[variables('gw_interface1_ip')]",
                       "privateIPAllocationMethod": "[variables('global_var_allocationMethod')]",
                       "subnet": {
-                        "id": "[concat(resourceId(variables('global_vnet_resource_group'), 'Microsoft.Network/virtualNetworks', variables('global_vnet_name')), '/subnets/', variables('global_vnet_subnet0_name'))]"
+                        "id": "[concat(resourceId(variables('global_vnet_resource_group'), 'Microsoft.Network/virtualNetworks', variables('global_vnet_name')), '/subnets/', variables('global_vnet_subnet1_name'))]"
                       },
                       "primary": true,
                       "privateIPAddressVersion": "[variables('global_var_networkVersion')]"
