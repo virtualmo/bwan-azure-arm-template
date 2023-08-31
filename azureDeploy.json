@@ -150,8 +150,9 @@
     "global_var_idleTimeoutInMinutes": 4,
     "global_var_allocationMethod": "Static",
     "global_var_networkVersion": "IPv4",
-    "global_var_apiVersion": "2023-04-01",
     "global_var_apiVersion_compute": "2023-03-01",
+    "global_var_apiVersion_network": "2023-04-01",
+    "global_var_apiVersion_resources": "2022-09-01",
     "global_var_tier": "Regional",
     "global_var_sku": "Standard",
     "global_gw_public_nsg_name": "[take(replace(concat(parameters('GatewayNSGName'), '-public', variables('global_var_appendedString')), ' ', ''), 80)]",
@@ -191,7 +192,7 @@
       "comments": "# Create the public and private network security groups",
       "type": "Microsoft.Resources/deployments",
       "name": "CREATE_NSGS",
-      "apiVersion": "[variables('global_var_apiVersion')]",
+      "apiVersion": "[variables('global_var_apiVersion_resources')]",
       "resourceGroup": "[resourceGroup().name]",
       "properties": {
         "mode": "Incremental",
@@ -201,7 +202,7 @@
           "resources": [
             {
               "type": "Microsoft.Network/networkSecurityGroups",
-              "apiVersion": "[variables('global_var_apiVersion')]",
+              "apiVersion": "[variables('global_var_apiVersion_network')]",
               "name": "[variables('global_gw_public_nsg_name')]",
               "location": "[resourceGroup().location]",
               "properties": {
@@ -247,7 +248,7 @@
             },
             {
               "type": "Microsoft.Network/networkSecurityGroups",
-              "apiVersion": "[variables('global_var_apiVersion')]",
+              "apiVersion": "[variables('global_var_apiVersion_network')]",
               "name": "[variables('global_gw_private_nsg_name')]",
               "location": "[resourceGroup().location]",
               "properties": {
@@ -262,7 +263,7 @@
       "comments": "# Create vNET with public and private subnet",
       "type": "Microsoft.Resources/deployments",
       "name": "CREATE_VNET",
-      "apiVersion": "[variables('global_var_apiVersion')]",
+      "apiVersion": "[variables('global_var_apiVersion_resources')]",
       "resourceGroup": "[variables('global_vnet_resource_group')]",
       "condition": "[equals(variables('global_vnet_option'), 'Create a new vNET')]",
       "properties": {
@@ -274,7 +275,7 @@
             {
               "type": "Microsoft.Network/virtualNetworks",
               "name": "[variables('global_vnet_name')]",
-              "apiVersion": "[variables('global_var_apiVersion')]",
+              "apiVersion": "[variables('global_var_apiVersion_network')]",
               "location": "[resourceGroup().location]",
               "properties": {
                 "addressSpace": {
@@ -306,7 +307,7 @@
       "comments": "# Create a BWAN gateway VM with two interfaces",
       "type": "Microsoft.Resources/deployments",
       "name": "CREATE_GW",
-      "apiVersion": "[variables('global_var_apiVersion')]",
+      "apiVersion": "[variables('global_var_apiVersion_resources')]",
       "resourceGroup": "[resourceGroup().name]",
       "dependsOn": [
         "CREATE_VNET",
@@ -320,7 +321,7 @@
           "resources": [
             {
               "type": "Microsoft.Network/publicIPAddresses",
-              "apiVersion": "[variables('global_var_apiVersion')]",
+              "apiVersion": "[variables('global_var_apiVersion_network')]",
               "name": "[variables('gw_interface0_pip_name')]",
               "location": "[resourceGroup().location]",
               "sku": {
@@ -336,7 +337,7 @@
             },
             {
               "type": "Microsoft.Network/networkInterfaces",
-              "apiVersion": "[variables('global_var_apiVersion')]",
+              "apiVersion": "[variables('global_var_apiVersion_network')]",
               "name": "[variables('gw_interface0_name')]",
               "location": "[resourceGroup().location]",
               "dependsOn": [
@@ -376,7 +377,7 @@
             },
             {
               "type": "Microsoft.Network/networkInterfaces",
-              "apiVersion": "[variables('global_var_apiVersion')]",
+              "apiVersion": "[variables('global_var_apiVersion_network')]",
               "name": "[variables('gw_interface1_name')]",
               "location": "[resourceGroup().location]",
               "kind": "Regular",
