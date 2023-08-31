@@ -7,7 +7,7 @@
   },
   "parameters": {
     "VNETOption": {
-      "type": "String",
+      "type": "string",
       "value": "Create a new vNET",
       "allowedValues": [
         "Create a new vNET",
@@ -67,11 +67,11 @@
       }
     },
     "bwan_gw_eth0_IP": {
-      "type": "String",
+      "type": "string",
       "value": "10.0.1.4"
     },
     "bwan_gw_eth1_IP": {
-      "type": "String",
+      "type": "string",
       "value": "10.0.2.4"
     },
     "bwan_gw_vm_size": {
@@ -89,6 +89,7 @@
       }
     },
     "bwan_gw_os_disk_type": {
+      "type": "string",
       "defaultValue": "Standard_LRS",
       "allowedValues": [
         "Standard_LRS",
@@ -140,7 +141,7 @@
       "metadata": {
         "description": "Enter a name for the borderless sd-wan gateway"
       }
-    },
+    }
   },
   "variables": {
     "global_var_schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
@@ -180,7 +181,7 @@
     "gw_interface0_ip": "[parameters('bwan_gw_eth0_IP')]",
     "gw_interface1_ip": "[parameters('bwan_gw_eth1_IP')]",
     "gw_interface0_pip_name": "[take(replace(concat(parameters('bwan_gw_vm_name'), '-nic0-pip', variables('global_var_appendedString')), ' ', ''), 80)]",
-    "gw_interface0_pip_id": { "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gw_interface0_pip_name'))]" },
+    "gw_interface0_pip_id": { "id": "[resourceId('Microsoft.Network/publicIPAddresses', variables('gw_interface0_pip_name'))]" }
 
 
   },
@@ -466,7 +467,7 @@
                     {
                       "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('gw_interface0_name'))]",
                       "properties": {
-                        "primary": true,
+                        "primary": true
                       }
                     },
                     {
