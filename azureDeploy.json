@@ -150,7 +150,7 @@
     "global_var_idleTimeoutInMinutes": 4,
     "global_var_allocationMethod": "Static",
     "global_var_networkVersion": "IPv4",
-    "global_var_apiVersion": "2023-04-01",
+    "global_var_apiVersion": "2023-07-01",
     "global_var_tier": "Regional",
     "global_var_sku": "Standard",
     "global_gw_public_nsg_name": "[take(replace(concat(parameters('GatewayNSGName'), '-public', variables('global_var_appendedString')), ' ', ''), 80)]",
