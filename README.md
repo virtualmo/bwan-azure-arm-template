@@ -18,10 +18,11 @@ Deploy single Netskope Borderless SD-WAN Gateway with two interfaces (1xPublic a
 <p align="center">
 <img src="https://github.com/virtualmo/bwan-azure-arm-template/blob/main/Images/Topology.png">
 </br>
+</p>
+
 [<img src="http://azuredeploy.net/deploybutton.png"/>](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fvirtualmo%2Fbwan-azure-arm-template%2Fmain%2FazureDeploy.json)
 
 </br>
-</p>
 
 ## 1.3. Gateway activation
 
