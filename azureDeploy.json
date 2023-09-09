@@ -365,7 +365,7 @@
                   "dnsServers": []
                 },
                 "enableAcceleratedNetworking": false,
-                "enableIPForwarding": false,
+                "enableIPForwarding": true,
                 "disableTcpStateTracking": false,
                 "networkSecurityGroup": {
                   "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('global_gw_public_nsg_name'))]"
@@ -401,7 +401,7 @@
                   "dnsServers": []
                 },
                 "enableAcceleratedNetworking": false,
-                "enableIPForwarding": false,
+                "enableIPForwarding": true,
                 "disableTcpStateTracking": false,
                 "networkSecurityGroup": {
                   "id": "[resourceId('Microsoft.Network/networkSecurityGroups', variables('global_gw_private_nsg_name'))]"
