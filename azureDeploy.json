@@ -146,7 +146,7 @@
   "variables": {
     "global_var_schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
     "global_var_resource_group": "[resourceGroup().name]",
-    "global_var_appendedString": "[if(equals(parameters('optional-StringToAppend'), ''), '', parameters('optional-StringToAppend'))]",
+    "global_var_appendedString": "[if(equals(parameters('optional-StringToAppend'), ''), '', concat('-', parameters('optional-StringToAppend')))]",
     "global_var_idleTimeoutInMinutes": 4,
     "global_var_allocationMethod": "Static",
     "global_var_networkVersion": "IPv4",
@@ -304,9 +304,9 @@
       }
     },
     {
-      "comments": "# Create a BWAN gateway VM with two interfaces",
+      "comments": "# Create a public IP and two interfaces for the BWAN GW",
       "type": "Microsoft.Resources/deployments",
-      "name": "CREATE_GW",
+      "name": "CREATE_NICs",
       "apiVersion": "[variables('global_var_apiVersion_resources')]",
       "resourceGroup": "[resourceGroup().name]",
       "dependsOn": [
@@ -410,7 +410,28 @@
                 "auxiliaryMode": "None",
                 "auxiliarySku": "None"
               }
-            },
+            }
+          ]
+        }
+      }
+    },
+    {
+      "comments": "# Create a BWAN gateway VM with two interfaces",
+      "type": "Microsoft.Resources/deployments",
+      "name": "CREATE_GW",
+      "apiVersion": "[variables('global_var_apiVersion_resources')]",
+      "resourceGroup": "[resourceGroup().name]",
+      "dependsOn": [
+        "CREATE_VNET",
+        "CREATE_NSGS",
+        "CREATE_NICs"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "template": {
+          "$schema": "[variables('global_var_schema')]",
+          "contentVersion": "1.0.0.0",
+          "resources": [
             {
               "type": "Microsoft.Compute/virtualMachines",
               "apiVersion": "[variables('global_var_apiVersion_compute')]",
