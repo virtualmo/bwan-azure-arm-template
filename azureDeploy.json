@@ -437,10 +437,6 @@
               "apiVersion": "[variables('global_var_apiVersion_compute')]",
               "name": "[variables('gw_computerName')]",
               "location": "eastus",
-              "dependsOn": [
-                "[resourceId('Microsoft.Network/networkInterfaces', variables('gw_interface0_name'))]",
-                "[resourceId('Microsoft.Network/networkInterfaces', variables('gw_interface1_name'))]"
-              ],
               "plan": {
                 "name": "[variables('global_gw_plan_name')]",
                 "product": "[variables('global_gw_plan_product')]",
